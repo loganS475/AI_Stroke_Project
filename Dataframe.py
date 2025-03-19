@@ -38,6 +38,7 @@ class NeuralNetwork(nn.Module):
         x = self.flatten(x) #flattens data so it can enter neural network
         logits = self.linear_relu_stack(x)# runs data through layers and returns data unnormalized
         return logits #logits = unormalized data
-    
-model = NeuralNetwork().to(device)
+
+#Creates Neural Network Object with two classes. "Yes" and "No"    
+model = NeuralNetwork(num_classes=2).to(device)
 print(model)
