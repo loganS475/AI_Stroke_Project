@@ -11,8 +11,6 @@ df = pd.read_csv('healthcare-dataset-stroke-data.csv')
 df['bmi'] = df['bmi'].fillna(28.89)
 training = df[:4089]
 testing = df[4089:]
-print(training)
-print(testing)
 
 #Checks if a Cuda device is avaliable otherwise defaults to CPU
 if torch.accelerator.is_available():
@@ -39,6 +37,7 @@ class NeuralNetwork(nn.Module):
     def forward(self, x):
         x = self.flatten(x) #flattens data so it can enter neural network
         logits = self.linear_relu_stack(x)# runs data through layers and returns data unnormalized
-        return logits
+        return logits #logits = unormalized data
     
-    
+model = NeuralNetwork().to(device)
+print(model)
