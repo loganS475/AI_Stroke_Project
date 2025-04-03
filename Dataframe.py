@@ -29,6 +29,7 @@ shuffled_df = df.sample(frac=1).reset_index(drop=True)
 training = shuffled_df[:4089]
 testing = shuffled_df[4089:]
 print(training)
+print(testing)
 """
 #Checks if a Cuda device is avaliable otherwise defaults to CPU
 if torch.accelerator.is_available():
