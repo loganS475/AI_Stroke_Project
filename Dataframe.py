@@ -63,6 +63,7 @@ model = NeuralNetwork().to(device)
 print(model)
 
 #converts dataframe to torch tensor so model can be fed data.
-X_tensor = torch.tensor(training.values)
+training = training.apply(pd.to_numeric, errors ='coerce')
+X_tensor = torch.tensor(training.values, dtype=torch.float32)
 logits = model(X_tensor)
 pred_probab = nn.Softmax(dim=1)(logits)
