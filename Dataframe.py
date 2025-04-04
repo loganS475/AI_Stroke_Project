@@ -3,11 +3,11 @@ import numpy as np
 import os
 import torch
 from torch import nn
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader,TensorDataset
 from torchvision import datasets, transforms 
 
 df = pd.read_csv('healthcare-dataset-stroke-data.csv')
-newdf = df[["stroke"]].copy()
+checkingdf = df[["stroke"]].copy()
 df.drop(columns=['stroke'],inplace=True)
 df.loc[df["hypertension"]=="Yes","hypertension"] = 1
 df.loc[df["hypertension"]=="No","hypertension"] = 0
@@ -30,7 +30,7 @@ training = shuffled_df[:4089]
 testing = shuffled_df[4089:]
 print(training)
 print(testing)
-"""
+
 #Checks if a Cuda device is avaliable otherwise defaults to CPU
 if torch.accelerator.is_available():
     device = torch.accelerator.current_accelerator().type
@@ -63,10 +63,6 @@ model = NeuralNetwork().to(device)
 print(model)
 
 #converts dataframe to torch tensor so model can be fed data.
-numeric_values = training.select_dtypes(include=["number"]).columns
-other_values = training.select_dtypes(exclude=["number"]).columns
-
-X_tensor = torch.tensor(numeric_values, dtype=torch.float32)
-#logits = model(X_tensor)
-#pred_probab = nn.Softmax(dim=1)(logits)
-"""
+X_tensor = torch.tensor(training.values)
+logits = model(X_tensor)
+pred_probab = nn.Softmax(dim=1)(logits)
