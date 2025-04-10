@@ -28,8 +28,6 @@ df.replace(np.nan,26.6,inplace=True)
 shuffled_df = df.sample(frac=1).reset_index(drop=True)
 training = shuffled_df[:4089]
 testing = shuffled_df[4089:]
-print(training)
-print(testing)
 
 #Checks if a Cuda device is avaliable otherwise defaults to CPU
 if torch.accelerator.is_available():
@@ -45,11 +43,11 @@ class NeuralNetwork(nn.Module):
         super().__init__()# check to make sure constructor is properly set up
         self.flatten = nn.Flatten() # Reshapes data into a vector
         self.linear_relu_stack = nn.Sequential( #Builds hidden and visible layers of neural network
-            nn.Linear(12, 32),
+            nn.Linear(11, 32),
             nn.ReLU(),
             nn.Linear(32, 16),
             nn.ReLU(),
-            nn.Linear(32, 8),
+            nn.Linear(16, 1),
         )
 
     #shows how data flows through neural network
@@ -58,7 +56,7 @@ class NeuralNetwork(nn.Module):
         logits = self.linear_relu_stack(x)# runs data through layers and returns data unnormalized
         return logits #logits = unnormalized data
 
-#Creates Neural Network Object with two classes. "Yes" and "No"    
+#Creates Neural Network Object   
 model = NeuralNetwork().to(device)
 print(model)
 
@@ -67,3 +65,4 @@ training = training.apply(pd.to_numeric, errors ='coerce')
 X_tensor = torch.tensor(training.values, dtype=torch.float32)
 logits = model(X_tensor)
 pred_probab = nn.Softmax(dim=1)(logits)
+print(type(pred_probab))
