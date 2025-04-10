@@ -8,6 +8,7 @@ from torchvision import datasets, transforms
 
 df = pd.read_csv('healthcare-dataset-stroke-data.csv')
 checkingdf = df[["stroke"]].copy()
+#drops stroke column and enumerates categorical columns
 df.drop(columns=['stroke'],inplace=True)
 df.loc[df["hypertension"]=="Yes","hypertension"] = 1
 df.loc[df["hypertension"]=="No","hypertension"] = 0
@@ -25,6 +26,7 @@ df.loc[df["smoking_status"]=="smokes", "smoking_status"] = -1
 df.loc[df["smoking_status"]=="formerly smoked", "smoking_status"] = 0
 df.loc[df["smoking_status"]=="Unknown", "smoking_status"] = 2
 df.replace(np.nan,26.6,inplace=True)
+#ensures that both training and testing will have people who have and haven't had a stroke
 shuffled_df = df.sample(frac=1).reset_index(drop=True)
 training = shuffled_df[:4089]
 testing = shuffled_df[4089:]
@@ -64,5 +66,5 @@ print(model)
 training = training.apply(pd.to_numeric, errors ='coerce')
 X_tensor = torch.tensor(training.values, dtype=torch.float32)
 logits = model(X_tensor)
-pred_probab = nn.Softmax(dim=1)(logits)
+pred_probab = nn.Softmax(dim=1)(logits) #torch tensor output from neural network
 print(type(pred_probab))
