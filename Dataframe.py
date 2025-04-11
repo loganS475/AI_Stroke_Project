@@ -7,9 +7,7 @@ from torch.utils.data import DataLoader,TensorDataset
 from torchvision import datasets, transforms 
 
 df = pd.read_csv('healthcare-dataset-stroke-data.csv')
-checkingdf = df[["stroke"]].copy()
 #drops stroke column and enumerates categorical columns
-df.drop(columns=['stroke'],inplace=True)
 df.loc[df["hypertension"]=="Yes","hypertension"] = 1
 df.loc[df["hypertension"]=="No","hypertension"] = 0
 df.loc[df["gender"]=="Male","gender"] = 1
@@ -18,7 +16,8 @@ df.loc[df["ever_married"]=="Yes","ever_married"] = 1
 df.loc[df["ever_married"]=="No","ever_married"] = 0
 df.loc[df["work_type"]=="Govt_job", "work_type"] = 0
 df.loc[df["work_type"]=="Private","work_type"] = 1
-df.loc[df["work_type"]=="Self_employed", "work_type"] = -1
+df.loc[df["work_type"]=="Self-employed", "work_type"] = -1
+df.loc[df["work_type"]=="children", "work_type"] = 2
 df.loc[df["Residence_type"]=="Urban", "Residence_type"] = 0
 df.loc[df["Residence_type"]=="Rural", "Residence_type"] = 1
 df.loc[df["smoking_status"]=="never smoked", "smoking_status"] = 1
@@ -26,6 +25,7 @@ df.loc[df["smoking_status"]=="smokes", "smoking_status"] = -1
 df.loc[df["smoking_status"]=="formerly smoked", "smoking_status"] = 0
 df.loc[df["smoking_status"]=="Unknown", "smoking_status"] = 2
 df.replace(np.nan,26.6,inplace=True)
+
 #Normalizing the data
 mean_age = df['age'].mean()
 std_age = df['age'].std()
@@ -38,11 +38,16 @@ for index,rows in df.iterrows():
     df.at[index,'avg_glucose_level'] = (df.at[index,'avg_glucose_level'] - mean_glu)/std_glu
     df.at[index,'bmi'] = (df.at[index,'bmi'] - mean_bmi)/std_bmi
 
-
 #ensures that both training and testing will have people who have and haven't had a stroke
 shuffled_df = df.sample(frac=1).reset_index(drop=True)
+checkingdf = shuffled_df[["stroke"]].copy()
+shuffled_df.drop(columns=['stroke'],inplace=True)
+id_df = shuffled_df[['id']].copy()
+shuffled_df.drop(columns=['id'],inplace=True)
 training = shuffled_df[:4089]
 testing = shuffled_df[4089:]
+#with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+    #print(training)
 
 #Checks if a Cuda device is avaliable otherwise defaults to CPU
 if torch.accelerator.is_available():
@@ -58,7 +63,7 @@ class NeuralNetwork(nn.Module):
         super().__init__()# check to make sure constructor is properly set up
         self.flatten = nn.Flatten() # Reshapes data into a vector
         self.linear_relu_stack = nn.Sequential( #Builds hidden and visible layers of neural network
-            nn.Linear(11, 32),
+            nn.Linear(10, 32),
             nn.ReLU(),
             nn.Linear(32, 16),
             nn.ReLU(),
@@ -73,11 +78,13 @@ class NeuralNetwork(nn.Module):
 
 #Creates Neural Network Object   
 model = NeuralNetwork().to(device)
-print(model)
 
 #converts dataframe to torch tensor so model can be fed data.
 training = training.apply(pd.to_numeric, errors ='coerce')
 X_tensor = torch.tensor(training.values, dtype=torch.float32)
 logits = model(X_tensor)
 pred_probab = nn.Softmax(dim=1)(logits) #torch tensor output from neural network
-print(type(pred_probab))
+temp = pred_probab.detach().numpy()
+results = pd.DataFrame(temp)
+with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+    print(results)
