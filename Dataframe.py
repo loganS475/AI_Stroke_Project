@@ -26,6 +26,19 @@ df.loc[df["smoking_status"]=="smokes", "smoking_status"] = -1
 df.loc[df["smoking_status"]=="formerly smoked", "smoking_status"] = 0
 df.loc[df["smoking_status"]=="Unknown", "smoking_status"] = 2
 df.replace(np.nan,26.6,inplace=True)
+#Normalizing the data
+mean_age = df['age'].mean()
+std_age = df['age'].std()
+mean_glu = df['avg_glucose_level'].mean()
+std_glu = df['avg_glucose_level'].std()
+mean_bmi = df['bmi'].mean()
+std_bmi = df['bmi'].std()
+for index,rows in df.iterrows():
+    df.at[index,'age'] = (df.at[index,'age'] - mean_age)/std_age
+    df.at[index,'avg_glucose_level'] = (df.at[index,'avg_glucose_level'] - mean_glu)/std_glu
+    df.at[index,'bmi'] = (df.at[index,'bmi'] - mean_bmi)/std_bmi
+
+
 #ensures that both training and testing will have people who have and haven't had a stroke
 shuffled_df = df.sample(frac=1).reset_index(drop=True)
 training = shuffled_df[:4089]
