@@ -64,7 +64,7 @@ class NeuralNetwork():
 learning_rate = 0.01
 epochs = 100
 
-model = NeuralNetwork(x_test_tensor)
+model = NeuralNetwork(x_train_tensor)
 
 for epoch in range(epochs):
     y_pred = model.forward(x_train_tensor)
