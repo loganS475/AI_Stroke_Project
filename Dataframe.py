@@ -60,3 +60,32 @@ class NeuralNetwork():
     def loss_function(self,y_pred,y):
         loss = torch.mean((y_pred - y)**2)
         return loss
+
+learning_rate = 0.01
+epochs = 100
+
+model = NeuralNetwork(x_test_tensor)
+
+for epoch in range(epochs):
+    y_pred = model.forward(x_train_tensor)
+
+    loss = model.loss_function(y_pred,y_train_tensor)
+
+    loss.backward()
+
+    #Update Parameters
+    with torch.no_grad():
+        model.weights -= learning_rate * model.weights.grad
+        model.bias -= learning_rate * model.bias.grad
+
+    #Zero Gradients
+    model.weights.grad.zero_()
+    model.bias.grad.zero_()
+
+#Analysis of results
+with torch.no_grad():
+  y_pred = model.forward(x_test_tensor)
+  y_pred = (y_pred > 0.9).float()
+  accuracy = (y_pred == y_test_tensor).float().mean()
+  print(f'Accuracy: {accuracy.item()}')
+     
