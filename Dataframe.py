@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 df = pd.read_csv('healthcare-dataset-stroke-data.csv')
+
 #drops stroke column and enumerates categorical columns
 df.loc[df["hypertension"]=="Yes","hypertension"] = 1
 df.loc[df["hypertension"]=="No","hypertension"] = 0
@@ -60,11 +61,13 @@ class NeuralNetwork():
         loss = torch.mean((y_pred - y)**2)
         return loss
 
+#sets parameters for neural network
 learning_rate = 0.01
 epochs = 100
 
 model = NeuralNetwork(x_train_tensor)
 
+#Training the model
 for epoch in range(epochs):
     y_pred = model.forward(x_train_tensor)
 
@@ -81,10 +84,11 @@ for epoch in range(epochs):
     model.weights.grad.zero_()
     model.bias.grad.zero_()
 
-#Analysis of results
+#Testing model with unseen data
 with torch.no_grad():
   y_pred = model.forward(x_test_tensor)
   y_pred = (y_pred > 0.9).float()
   accuracy = (y_pred == y_test_tensor).float().mean()
   print(f'Accuracy: {accuracy.item()}')
+
      
